@@ -1,0 +1,9 @@
+@startuml state
+[*] --> Draft
+Draft --> ReviewRequested : submit
+ReviewRequested --> Approved : accept
+ReviewRequested --> Rejected : reject
+Approved --> OnSale : publish
+OnSale --> OffSale : unpublish
+OffSale --> OnSale : republish
+@enduml

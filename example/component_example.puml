@@ -1,0 +1,27 @@
+@startuml component
+
+package "상품 서비스" {
+  interface ProductApi
+  component ProductController
+  component ProductService
+  component ProductRepository
+
+  ProductController --> ProductApi
+  ProductController --> ProductService
+  ProductService --> ProductRepository
+}
+
+package "외부 시스템" {
+  component S3Uploader
+  interface StorageClient
+  component SlackNotifier
+  interface NotificationClient
+
+  S3Uploader ..|> StorageClient
+  SlackNotifier ..|> NotificationClient
+}
+
+ProductService --> StorageClient
+ProductService --> NotificationClient
+
+@enduml

@@ -1,0 +1,109 @@
+@startuml sequence
+actor Seller
+participant ProductService
+participant Product
+participant Admin
+
+Seller -> ProductService: submitForApproval(productId)
+ProductService -> Product: requestApproval()
+Product -> ProductService: 상태 = WAITING_APPROVAL
+
+Admin -> ProductService: approveProduct(productId)
+ProductService -> Product: approve()
+Product -> ProductService: 상태 = APPROVED
+@enduml
+
+@startuml usecase
+left to right direction
+
+actor "판매자" as Seller
+actor "관리자" as Admin
+
+rectangle "상품 관리 시스템" {
+  Seller --> (상품 등록)
+  Seller --> (검수 요청)
+  Admin --> (상품 검수)
+  Admin --> (상품 승인)
+  Admin --> (상품 거절)
+  Seller --> (판매 시작 요청)
+  Admin --> (판매 상태 변경 승인)
+}
+@enduml
+
+@startuml state
+[*] --> DRAFT
+
+DRAFT --> WAITING_APPROVAL : 검수 요청
+WAITING_APPROVAL --> APPROVED : 승인됨
+WAITING_APPROVAL --> REJECTED : 거절됨
+
+APPROVED --> ON_SALE : 판매 시작
+ON_SALE --> OFF_SALE : 판매 중지
+OFF_SALE --> ON_SALE : 판매 재개
+@enduml
+
+@startuml activity
+start
+
+:상품 등록;
+:검수 요청;
+
+if (관리자 검수) then (승인)
+  :상품 승인;
+  :판매 시작 요청;
+  if (승인 여부 확인) then (예)
+    :판매 상태 = ON_SALE;
+  else (거절)
+    :판매 상태 = OFF_SALE;
+  endif
+else (거절)
+  :상품 거절;
+endif
+
+stop
+@enduml
+
+@startuml deployment
+
+node "사용자 PC" {
+  [브라우저]
+}
+
+node "웹 서버 (Nginx)" {
+  [Frontend SPA]
+}
+
+node "WAS (Spring Boot)" {
+  artifact "product-api.jar"
+  artifact "auth-api.jar"
+}
+
+node "DB 서버" {
+  database "ProductDB"
+  database "UserDB"
+}
+
+[브라우저] --> [Frontend SPA] : HTTP
+[Frontend SPA] --> "product-api.jar" : REST API 요청
+"product-api.jar" --> "ProductDB" : JDBC (R/W)
+"auth-api.jar" --> "UserDB" : JDBC (R/O)
+
+@enduml
+
+@startuml component
+
+package "상품 도메인" {
+  [ProductController] --> [ProductService]
+  [ProductService] --> [ProductRepository]
+  [ProductService] --> [ApprovalService]
+}
+
+package "외부 연동" {
+  [ImageUploader] --> [S3Client]
+  [Notifier] --> [SlackClient]
+}
+
+[ProductController] --> [ImageUploader]
+[ApprovalService] --> [Notifier]
+
+@enduml

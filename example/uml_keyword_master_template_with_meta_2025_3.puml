@@ -1,0 +1,115 @@
+' UML 다이어그램별 키워드 마스터표
+' ✅: 사용 가능 / ❌: 사용 불가
+' 공식 여부 기준: PlantUML 1.2025.3
+
+'
+' ===== Class 다이어그램 =====
+'   *--                  - 비공식
+'   --                   - 비공식
+'   ..>                  - 비공식
+'   ..|>                 - 공식
+'   <<stereotype>>       - 공식
+'   abstract             - 공식
+'   annotation           - 공식
+'   class                - 공식
+'   enum                 - 공식
+'   interface            - 공식
+'   o--                  - 비공식
+'   package              - 공식
+
+'
+' ===== Use Case 다이어그램 =====
+'   -->                  - 공식
+'   .>                   - 공식
+'   <..                  - 공식
+'   actor                - 공식
+'   extends              - 공식
+'   includes             - 공식
+'   package              - 공식
+'   usecase              - 공식
+
+'
+' ===== Sequence 다이어그램 =====
+'   -->                  - 공식
+'   ->                   - 공식
+'   activate             - 공식
+'   actor                - 공식
+'   alt                  - 공식
+'   break                - 공식
+'   critical             - 공식
+'   deactivate           - 공식
+'   else                 - 공식
+'   end                  - 공식
+'   loop                 - 공식
+'   note                 - 공식
+'   opt                  - 공식
+'   par                  - 공식
+'   participant          - 공식
+
+'
+' ===== Activity 다이어그램 =====
+'   :action;             - 공식
+'   backward             - 비공식
+'   detach               - 비공식
+'   else                 - 공식
+'   end                  - 공식
+'   endif                - 공식
+'   fork                 - 공식
+'   if                   - 공식
+'   merge                - 공식
+'   partition            - 공식
+'   repeat               - 비공식
+'   start                - 공식
+'   stop                 - 비공식
+
+'
+' ===== State 다이어그램 =====
+'   -->                  - 공식
+'   :do                  - 공식
+'   :entry               - 공식
+'   :exit                - 공식
+'   [*]                  - 공식
+'   hide empty description - 비공식
+'   note                 - 공식
+'   state                - 공식
+
+'
+' ===== Deployment 다이어그램 =====
+'   -->                  - 공식
+'   artifact             - 공식
+'   cloud                - 공식
+'   component            - 공식
+'   database             - 공식
+'   frame                - 공식
+'   node                 - 공식
+'   package              - 공식
+
+'
+' ===== Component 다이어그램 =====
+'   -->                  - 공식
+'   ..|>                 - 공식
+'   <..                  - 공식
+'   <<stereotype>>       - 공식
+'   component            - 공식
+'   interface            - 공식
+'   package              - 공식
+
+'
+' ===== Object 다이어그램 =====
+'   *--                  - 비공식
+'   -->                  - 공식
+'   :attribute = value   - 공식
+'   object               - 공식
+
+'
+' ===== Wireframe 다이어그램 =====
+'   button               - 공식
+'   checkbox             - 공식
+'   dropdown             - 공식
+'   frame                - 공식
+'   image                - 공식
+'   label                - 공식
+'   list                 - 공식
+'   textarea             - 공식
+'   textfield            - 공식
+

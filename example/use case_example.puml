@@ -1,0 +1,26 @@
+@startuml usecase
+left to right direction
+
+actor "판매자" as Seller
+actor "관리자" as Admin
+
+usecase "상품 등록" as UC_Register
+usecase "검수 요청" as UC_RequestApproval
+usecase "상품 검수" as UC_Review
+usecase "상품 승인" as UC_Approve
+usecase "상품 거절" as UC_Reject
+usecase "판매 시작 요청" as UC_RequestSale
+usecase "판매 상태 변경 승인" as UC_SaleApprove
+
+Seller --> UC_Register
+Seller --> UC_RequestApproval
+Seller --> UC_RequestSale
+
+Admin --> UC_Review
+Admin --> UC_Approve
+Admin --> UC_Reject
+Admin --> UC_SaleApprove
+
+UC_Approve .> UC_Review : extends
+UC_Reject .> UC_Review : extends
+@enduml

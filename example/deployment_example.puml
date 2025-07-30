@@ -1,0 +1,29 @@
+@startuml deployment
+
+frame "쇼핑몰 시스템 배포 구조" {
+
+  node "Client Device" {
+    [브라우저]
+  }
+
+  node "Web Server (Nginx)" {
+    artifact "frontend-app.zip"
+  }
+
+  node "Application Server (Spring Boot)" {
+    artifact "product-api.jar"
+    artifact "auth-api.jar"
+  }
+
+  node "Database Server" {
+    database "ProductDB"
+    database "UserDB"
+  }
+
+  [브라우저] --> "frontend-app.zip" : HTTP 요청
+  "frontend-app.zip" --> "product-api.jar" : API 호출
+  "product-api.jar" --> "ProductDB" : JDBC
+  "auth-api.jar" --> "UserDB" : JDBC
+}
+
+@enduml

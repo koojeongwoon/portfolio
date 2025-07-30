@@ -1,0 +1,15 @@
+@startuml object
+object product1 {
+  id = 1
+  name = "Keyboard"
+  price = 49000
+}
+
+object product2 {
+  id = 2
+  name = "Mouse"
+  price = 29000
+}
+
+product1 --> product2 : frequently bought with
+@enduml

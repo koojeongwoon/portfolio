@@ -1,0 +1,33 @@
+@startuml class
+
+package "도메인 모델" {
+  class Product {
+    - id: Long
+    - name: String
+    + getName(): String
+  }
+
+  enum ProductStatus {
+    DRAFT
+    APPROVED
+    ON_SALE
+  }
+}
+
+package "서비스 계층" {
+  class ProductService {
+    + save(Product): void
+  }
+
+  interface Persistable {
+    + save(): void
+  }
+
+  annotation Deprecated
+}
+
+Product --> ProductStatus
+ProductService ..|> Persistable
+ProductService ..> Product
+
+@enduml

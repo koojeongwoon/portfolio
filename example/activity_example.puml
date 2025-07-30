@@ -1,0 +1,20 @@
+@startuml activity
+
+start
+
+:상품 등록 화면 입력;
+:상품 데이터 검증;
+
+if (유효한 데이터인가?) then (Yes)
+  :검수 요청 상태로 저장;
+  :알림 전송;
+else (No)
+  :에러 메시지 반환;
+endif
+
+:사용자 응답 대기;
+
+end
+stop
+
+@enduml

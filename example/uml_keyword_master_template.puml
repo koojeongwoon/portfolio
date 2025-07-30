@@ -1,0 +1,114 @@
+' UML 다이어그램별 키워드 마스터표
+' ✅: 사용 가능 / ❌: 사용 불가
+
+'
+' ===== Class 다이어그램 =====
+'   *--
+'   --
+'   ..>
+'   ..|>
+'   <<stereotype>>
+'   abstract
+'   annotation
+'   class
+'   enum
+'   interface
+'   o--
+'   package
+
+'
+' ===== Use Case 다이어그램 =====
+'   -->
+'   .>
+'   <..
+'   actor
+'   extends
+'   includes
+'   package
+'   usecase
+
+'
+' ===== Sequence 다이어그램 =====
+'   -->
+'   ->
+'   activate
+'   actor
+'   alt
+'   break
+'   critical
+'   deactivate
+'   else
+'   end
+'   loop
+'   note
+'   opt
+'   par
+'   participant
+
+'
+' ===== Activity 다이어그램 =====
+'   :action;
+'   backward
+'   detach
+'   else
+'   end
+'   endif
+'   fork
+'   if
+'   merge
+'   partition
+'   repeat
+'   start
+'   stop
+
+'
+' ===== State 다이어그램 =====
+'   -->
+'   :do
+'   :entry
+'   :exit
+'   [*]
+'   hide empty description
+'   note
+'   state
+
+'
+' ===== Deployment 다이어그램 =====
+'   -->
+'   artifact
+'   cloud
+'   component
+'   database
+'   frame
+'   node
+'   package
+
+'
+' ===== Component 다이어그램 =====
+'   -->
+'   ..|>
+'   <..
+'   <<stereotype>>
+'   component
+'   interface
+'   package
+
+'
+' ===== Object 다이어그램 =====
+'   *--
+'   -->
+'   :attribute = value
+'   object
+
+'
+' ===== Wireframe 다이어그램 =====
+'   button
+'   checkbox
+'   dropdown
+'   frame
+'   image
+'   label
+'   list
+'   textarea
+'   textfield
+
