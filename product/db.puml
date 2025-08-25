@@ -1,0 +1,62 @@
+@startuml 
+' 구버전에서 에러나면 아래 두 줄은 끄세요(주석 유지)
+' hide circle
+' skinparam linetype ortho
+
+entity brand {
+  *brand_id <<PK>>
+  name
+  slug
+  status
+}
+
+entity category {
+  *category_id <<PK>>
+  parent_id <<FK>>
+  name
+  slug
+}
+
+entity product {
+  *product_id <<PK>>
+  brand_id <<FK>>
+  name
+  slug
+  status
+}
+
+entity product_category {
+  *product_id <<FK>>
+  *category_id <<FK>>
+  is_primary
+}
+
+entity product_image {
+  *image_id <<PK>>
+  product_id <<FK>>
+  url
+  sort_order
+}
+
+entity product_variant {
+  *variant_id <<PK>>
+  product_id <<FK>>
+  sku
+  price
+  status
+}
+
+entity inventory {
+  *variant_id <<PK>><<FK>>
+  qty_on_hand
+  qty_reserved
+}
+
+brand            ||--o{ product
+category         ||--o{ category : parent
+product          ||--o{ product_category
+category         ||--o{ product_category
+product          ||--o{ product_image
+product          ||--o{ product_variant
+product_variant  ||--|| inventory
+@enduml
