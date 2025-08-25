@@ -1,0 +1,14 @@
+@startuml usecase
+left to right direction
+
+actor "구매자" as buyer
+
+usecase "상품 목록" as UC_LIST
+usecase "특별 상품 목록" as UC_SPECIAL_LIST
+usecase "상품 상세" as UC_DETAIL
+
+buyer --> UC_LIST : 목록 요청\n(정상진입)
+buyer --> UC_DETAIL : 상세 요청\n(목록 -> 상세 or 광고진입)
+buyer --> UC_SPECIAL_LIST : 특별 목록 요청\n(추천 등 의도가 있는 목록)
+
+@enduml

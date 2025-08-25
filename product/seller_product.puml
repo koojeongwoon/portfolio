@@ -1,0 +1,22 @@
+@startuml usecase
+left to right direction
+
+actor "판매자" as seller
+
+usecase "상품 목록" as UC_LIST
+usecase "특별 상품 목록" as UC_SPECIAL_LIST
+usecase "상품 상세" as UC_DETAIL
+
+usecase "상품 등록 (단건 / 다건)" as UC_INSERT
+usecase "상품 수정" as UC_MODIFY
+usecase "상품 승인요청" as UC_APPROVAL
+usecase "상품 상태변경" as UC_STATUS
+
+seller --> UC_LIST : 목록 요청\n(정상진입)
+seller --> UC_DETAIL : 상세 요청\n(목록 -> 상세 or 광고진입)
+seller --> UC_SPECIAL_LIST : 특별 목록 요청\n(추천 등 의도가 있는 목록)
+seller --> UC_INSERT : 등록 요청
+seller --> UC_MODIFY : 수정 요청
+seller --> UC_APPROVAL : 승인 요청
+seller --> UC_STATUS : 상태 변경 요청
+@enduml
