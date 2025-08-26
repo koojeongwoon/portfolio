@@ -1,0 +1,48 @@
+# 이 파일은 시스템 전반에 걸친 도메인을 정의함.
+globals:
+  engine: InnoDB
+  charset: utf8mb4
+  pk_auto_increment: true
+  fk_on_delete: CASCADE
+  fk_on_update: CASCADE
+
+domains:
+  Money:
+    sql_type: "DECIMAL(12,2)"
+    check: "{col} >= 0"
+
+  Status:
+    sql_type: "ENUM('DRAFT','ACTIVE','ARCHIVED')"
+    default: "'DRAFT'"
+    index: true
+
+  Slug:
+    params: [len]
+    sql_type: "VARCHAR({len})"
+    check: "CHAR_LENGTH({col}) <= {len}"
+
+  Email:
+    sql_type: "VARCHAR(255)"
+    check: "INSTR({col}, '@') > 1"
+
+field_patterns:
+  - match: "slug"            # 정확히 slug
+    domain: "Slug(220)"      # 파라미터도 가능
+
+  - match: "*_price"         # price로 끝나는 모든 컬럼
+    domain: "Money"
+
+  - match: "price"           # 정확히 price (더 구체적인 규칙을 앞에!)
+    domain: "Money"
+
+  - match: "*_amount"        # amount로 끝나는 컬럼
+    domain: "Money"
+
+  - match: "*_email"         # 이메일 컬럼
+    domain: "Email"
+
+  - match: "*_at"            # created_at/updated_at 같은 컬럼
+    domain: "Timestamp"      # ← domains에 Timestamp 도메인 정의 필요
+
+  - match: "status"          # 상태값
+    domain: "Status"

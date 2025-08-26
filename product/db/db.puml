@@ -1,7 +1,4 @@
 @startuml 
-' 구버전에서 에러나면 아래 두 줄은 끄세요(주석 유지)
-' hide circle
-' skinparam linetype ortho
 
 entity brand {
   *brand_id <<PK>>
