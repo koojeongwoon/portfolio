@@ -1,0 +1,36 @@
+@startuml usecase
+left to right direction
+
+actor "사용자" as User
+actor "관리자" as Admin
+actor "스케줄러" as Scheduler
+actor "외부 시스템" as Cafe24
+
+rectangle "프로모션 시스템" {
+  usecase "프로모션 정보 조회" as UC_GetPromotion
+  usecase "실시간 재고 확인" as UC_CheckStock
+  usecase "캐시 갱신" as UC_RefreshCache
+
+  usecase "(공통) 프로모션 데이터 임포트" as UC_ImportData
+  usecase "수동 임포트" as UC_ManualImport
+  usecase "자동 임포트" as UC_AutoImport
+}
+
+User --> UC_GetPromotion
+Admin --> UC_ManualImport
+Scheduler --> UC_AutoImport
+Admin --> UC_RefreshCache
+
+' 수동/자동 임포트는 공통 임포트 로직을 실행함 (상속 관계)
+UC_ManualImport --|> UC_ImportData
+UC_AutoImport --|> UC_ImportData
+
+' 공통 임포트 로직은 항상 캐시 갱신과 외부 연동을 포함함
+UC_ImportData ..> UC_RefreshCache : <<includes>>
+UC_ImportData ..> Cafe24 : invokes
+
+' 프로모션 조회는 실시간 재고 확인을 포함함
+UC_GetPromotion ..> UC_CheckStock : <<includes>>
+UC_CheckStock ..> Cafe24 : invokes
+
+@enduml

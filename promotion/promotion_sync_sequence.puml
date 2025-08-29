@@ -1,0 +1,52 @@
+@startuml sequence
+title 프로모션 데이터 동기화 플로우
+
+actor "Trigger\n(Admin/Scheduler)" as Trigger
+participant "PromotionImportController /\nPromotionImportScheduler" as EntryPoint
+participant "PromotionDataImportService" as Orchestrator
+participant "PromotionImportService" as ImportSvc
+participant "PromotionSpecialNo...Service" as SpecialNoSvc
+participant "CacheEvictService" as CacheSvc
+actor "External Source\n(e.g. Cafe24)" as External
+
+Trigger -> EntryPoint: importAllPromotions(triggerType)
+activate EntryPoint
+
+EntryPoint -> Orchestrator: importAllPromotions(triggerType)
+activate Orchestrator
+
+loop for each PromotionType
+    Orchestrator -> ImportSvc: importFromExternalSources(type)
+    activate ImportSvc
+    ImportSvc -> External: fetch promotion data
+    activate External
+    External --> ImportSvc: return data
+    deactivate External
+    ImportSvc -> Orchestrator: process and save data
+    deactivate ImportSvc
+
+    Orchestrator -> SpecialNoSvc: importFromExternalSources(type)
+    activate SpecialNoSvc
+    SpecialNoSvc -> External: fetch special number data
+    activate External
+    External --> SpecialNoSvc: return data
+    deactivate External
+    SpecialNoSvc -> Orchestrator: process and save data
+    deactivate SpecialNoSvc
+end
+
+opt Import 작업 성공 시
+    Orchestrator -> CacheSvc: clearLocalAndRemoteCaches()
+    activate CacheSvc
+    note over CacheSvc: 모든 프로모션 관련\n캐시 데이터 삭제
+    CacheSvc --> Orchestrator: success
+    deactivate CacheSvc
+end
+
+Orchestrator --> EntryPoint: return ImportResultResponse
+deactivate Orchestrator
+
+EntryPoint --> Trigger: return result
+deactivate EntryPoint
+
+@enduml

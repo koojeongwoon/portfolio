@@ -8,10 +8,10 @@ entity brand {
 }
 
 entity category {
-  *category_id <<PK>>
-  parent_id <<FK>>
-  name
-  slug
+  *category_id : <<PK>>
+  parent_id : <<FK>>
+  name : VARCHAR(200)
+  slug : Slug(200)
 }
 
 entity product {

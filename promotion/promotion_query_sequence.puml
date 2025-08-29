@@ -1,0 +1,67 @@
+@startuml sequence
+title 프로모션 조회 및 실시간 재고 확인 플로우
+
+actor "Client" as Client
+participant "PromotionV2Controller" as Controller
+participant "PromotionService" as Service
+participant "PromotionCacheService" as CacheService
+participant "PromotionRepository" as Repository
+database "Database" as DB
+participant "PromotionCafe24\nStockService" as Cafe24StockService
+actor "Cafe24 (External)" as Cafe24External
+
+Client -> Controller: GET /api/v2/promotions/.../grouped
+activate Controller
+
+Controller -> Service: getPromotionWithGroupedItems(...)
+activate Service
+
+note over Service: 1. 프로모션 기본 정보 조회
+Service -> CacheService: getPromotions(...)
+activate CacheService
+
+alt #LightBlue
+    group Cache Hit [캐시 존재]
+        CacheService --> Service: return cached promotion data
+    end
+else #LightCoral
+    group Cache Miss [캐시 없음]
+        CacheService -> Repository: findPromotions(...)
+        activate Repository
+        Repository -> DB: SELECT ...
+        activate DB
+        DB --> Repository: return promotion rows
+        deactivate DB
+        Repository --> CacheService: return promotion data
+        deactivate Repository
+        CacheService -> CacheService: save result to cache
+        CacheService --> Service: return promotion data
+    end
+end
+deactivate CacheService
+
+note over Service: 2. 실시간 재고 정보 조회
+Service -> Cafe24StockService: getCafe24StockVariantCodes(...)
+activate Cafe24StockService
+Cafe24StockService -> Cafe24External: API Call (상품 Variant 정보)
+activate Cafe24External
+Cafe24External --> Cafe24StockService: return variant info
+deactivate Cafe24External
+
+Cafe24StockService -> Cafe24External: HTML Parsing (옵션별 재고)
+activate Cafe24External
+Cafe24External --> Cafe24StockService: return stock info
+deactivate Cafe24External
+
+Cafe24StockService --> Service: return combined stock info
+deactivate Cafe24StockService
+
+note over Service: 3. 데이터 통합, 정렬 및 그룹핑
+Service -> Service: 프로모션 정보와\n실시간 재고 정보 조합하여\n품절/정렬/그룹핑 처리
+Service --> Controller: return PromotionDetailGroupedResponse
+deactivate Service
+
+Controller --> Client: 200 OK (JSON Response)
+deactivate Controller
+
+@enduml
