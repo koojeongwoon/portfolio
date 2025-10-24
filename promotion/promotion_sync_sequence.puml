@@ -1,13 +1,14 @@
 @startuml sequence
-title 프로모션 데이터 동기화 플로우
+title 프로모션 데이터 동기화 플로우 (실패 알림 포함)
 
-actor "Trigger\n(Admin/Scheduler)" as Trigger
-participant "PromotionImportController /\nPromotionImportScheduler" as EntryPoint
+actor "Trigger(Admin/Scheduler)" as Trigger
+participant "PromotionImportController /PromotionImportScheduler" as EntryPoint
 participant "PromotionDataImportService" as Orchestrator
 participant "PromotionImportService" as ImportSvc
 participant "PromotionSpecialNo...Service" as SpecialNoSvc
 participant "CacheEvictService" as CacheSvc
-actor "External Source\n(e.g. Cafe24)" as External
+participant "MessageUtils" as Notifier
+actor "External Source(e.g. Cafe24)" as External
 
 Trigger -> EntryPoint: importAllPromotions(triggerType)
 activate EntryPoint
@@ -16,31 +17,62 @@ EntryPoint -> Orchestrator: importAllPromotions(triggerType)
 activate Orchestrator
 
 loop for each PromotionType
-    Orchestrator -> ImportSvc: importFromExternalSources(type)
-    activate ImportSvc
-    ImportSvc -> External: fetch promotion data
-    activate External
-    External --> ImportSvc: return data
-    deactivate External
-    ImportSvc -> Orchestrator: process and save data
-    deactivate ImportSvc
+    group 기본 정보 수집
+        Orchestrator -> ImportSvc: importFromExternalSources(type)
+        activate ImportSvc
+        ImportSvc -> External: fetch promotion data
+        activate External
+        External --> ImportSvc: return data
+        deactivate External
+        note over ImportSvc: 데이터 처리 및 저장
 
-    Orchestrator -> SpecialNoSvc: importFromExternalSources(type)
-    activate SpecialNoSvc
-    SpecialNoSvc -> External: fetch special number data
-    activate External
-    External --> SpecialNoSvc: return data
-    deactivate External
-    SpecialNoSvc -> Orchestrator: process and save data
-    deactivate SpecialNoSvc
+        break on exception
+            ImportSvc -> Notifier: sendMessage(errorMessage)
+            Notifier --> ImportSvc
+            ImportSvc --> Orchestrator: throws Exception
+            note right of Orchestrator: 해당 타입의 작업 실패로 기록(다음 타입으로 계속)
+        end
+
+        ImportSvc --> Orchestrator
+        deactivate ImportSvc
+    end
+
+    group SpecialNo 정보 수집
+        Orchestrator -> SpecialNoSvc: importFromExternalSources(type)
+        activate SpecialNoSvc
+        SpecialNoSvc -> External: fetch special number data
+        activate External
+        External --> SpecialNoSvc: return data
+        deactivate External
+        note over SpecialNoSvc: 데이터 처리 및 저장
+
+        break on exception
+            SpecialNoSvc -> Notifier: sendMessage(errorMessage)
+            Notifier --> SpecialNoSvc
+            SpecialNoSvc --> Orchestrator: throws Exception
+            note right of Orchestrator: 해당 타입의 작업 실패로 기록(다음 타입으로 계속)
+        end
+
+        SpecialNoSvc --> Orchestrator
+        deactivate SpecialNoSvc
+    end
 end
 
-opt Import 작업 성공 시
-    Orchestrator -> CacheSvc: clearLocalAndRemoteCaches()
-    activate CacheSvc
-    note over CacheSvc: 모든 프로모션 관련\n캐시 데이터 삭제
-    CacheSvc --> Orchestrator: success
-    deactivate CacheSvc
+opt Import 작업 중 하나라도 성공 시
+    group 캐시 초기화
+        Orchestrator -> CacheSvc: clearLocalAndRemoteCaches()
+        activate CacheSvc
+        note over CacheSvc: 모든 프로모션 관련 캐시 데이터 삭제
+
+        break on exception
+            CacheSvc --> Orchestrator: throws Exception
+            Orchestrator -> Notifier: sendMessage(cacheEvictFailedMessage)
+            Notifier --> Orchestrator
+        end
+
+        CacheSvc --> Orchestrator: success
+        deactivate CacheSvc
+    end
 end
 
 Orchestrator --> EntryPoint: return ImportResultResponse

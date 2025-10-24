@@ -1,0 +1,32 @@
+@startuml sequence
+title 이벤트 로그 저장 순차 다이어그램
+
+actor "Client" as Client
+participant "EventLogController" as Controller
+participant "EventLogService" as Service
+participant "EventLogRepository" as Repository
+database "Database" as DB
+
+Client -> Controller: POST /api/v1/event-logs
+activate Controller
+
+Controller -> Service: save(request)
+activate Service
+
+Service -> Repository: insert(request)
+activate Repository
+
+Repository -> DB: INSERT INTO event_log ...
+activate DB
+DB --> Repository: return
+deactivate DB
+
+Repository --> Service: return
+deactivate Repository
+
+Service --> Controller: return
+deactivate Service
+
+Controller --> Client: 200 OK
+deactivate Controller
+@enduml

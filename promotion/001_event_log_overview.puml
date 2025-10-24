@@ -1,0 +1,8 @@
+@startuml Use Case - Event Log
+left to right direction
+
+actor "Client" as client
+usecase "이벤트 로그 저장" as UC_SAVE_EVENT_LOG
+
+client --> UC_SAVE_EVENT_LOG
+@enduml

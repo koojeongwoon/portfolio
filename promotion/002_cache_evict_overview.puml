@@ -1,0 +1,14 @@
+@startuml Use Case - Cache Evict
+left to right direction
+
+actor "관리자/스케쥴러" as Admin
+
+rectangle "캐시 초기화" {
+    usecase "로컬 캐시 초기화" as UC_EVICT_LOCAL
+    usecase "전체 캐시 초기화" as UC_EVICT_ALL
+}
+
+Admin --> UC_EVICT_LOCAL
+
+UC_EVICT_LOCAL ..> UC_EVICT_ALL  : <<includes>>
+@enduml

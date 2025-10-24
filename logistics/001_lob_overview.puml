@@ -1,0 +1,44 @@
+@startuml usecase
+left to right direction
+
+actor "물류 관리자" as Manager
+actor "시스템 관리자" as Admin
+actor "외부 시스템(ERP, 쇼핑몰)" as ExternalSystem
+
+rectangle "LOB - 물류 백오피스 시스템" {
+
+  rectangle "데이터 준비 (Data Ingestion/Preparation)" {
+    usecase "발주 관리" as UC_PurchaseOrder
+    usecase "엑셀 업로드/다운로드" as UC_Excel
+  }
+
+  rectangle "물류 운영 관리 (Logistics Operations Management)" {
+    usecase "입고 처리" as UC_Receiving
+    usecase "재고 관리" as UC_Stock
+    usecase "피킹/패킹" as UC_PickingPacking
+    usecase "출고/배송 처리" as UC_Shipment
+    usecase "정산 관리" as UC_Settlement
+  }
+
+  rectangle "지원 및 분석 (Support & Analysis)" {
+    usecase "리포트/대시보드 조회" as UC_Dashboard
+    usecase "시스템/사용자 관리" as UC_Admin
+  }
+}
+
+Manager --> UC_PurchaseOrder
+Manager --> UC_Receiving
+Manager --> UC_Excel
+Manager --> UC_Stock
+Manager --> UC_PickingPacking
+Manager --> UC_Shipment
+Manager --> UC_Settlement
+Manager --> UC_Dashboard
+
+Admin --> UC_Admin
+
+ExternalSystem .> UC_PurchaseOrder : (API)
+ExternalSystem .> UC_Shipment : (API)
+ExternalSystem .> UC_Stock : (API)
+
+@enduml

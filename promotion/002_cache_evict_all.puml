@@ -1,0 +1,96 @@
+@startuml sequence
+title 전체 캐시 초기화 순차 다이어그램 (이중화 환경)
+
+actor "Admin" as Admin
+
+box "Instance 1"
+    participant "CacheEvictController" as Controller1
+    participant "CacheEvictService" as Service1
+    participant "CacheManager" as CacheManager1
+    participant "Environment" as Env1
+    participant "RestClient" as RestClient1
+end box
+
+box "Instance 2"
+    participant "CacheEvictController" as Controller2
+    participant "CacheEvictService" as Service2
+    participant "CacheManager" as CacheManager2
+end box
+
+Admin -> Controller1: POST /api/v1/cache/evict-all
+activate Controller1
+
+Controller1 -> Service1: clearLocalAndRemoteCaches()
+activate Service1
+
+note over Service1: 1. 로컬 캐시 우선 삭제
+Service1 -> Service1: clearOnlyLocalCache()
+activate Service1 #DarkSalmon
+Service1 -> CacheManager1: getCacheNames()
+activate CacheManager1
+CacheManager1 --> Service1: ["promotions", "promotionItems", ...]
+deactivate CacheManager1
+
+loop for each cache name
+    Service1 -> CacheManager1: getCache(name)
+    activate CacheManager1
+    CacheManager1 --> Service1: cache
+    deactivate CacheManager1
+    Service1 -> cache: clear()
+end
+deactivate Service1 #DarkSalmon
+
+note over Service1: 2. 운영 환경(prod)일 경우 원격 캐시 삭제
+Service1 -> Env1: getActiveProfiles()
+activate Env1
+Env1 --> Service1: ["prod", "..."]
+deactivate Env1
+
+opt if isProdProfile() == true
+    Service1 -> Env1: getActiveProfiles()
+    activate Env1
+    Env1 --> Service1: ["prod", "..."]
+    deactivate Env1
+    note over Service1: 이중화된 다른 서버의 URL 확인
+    Service1 -> Service1: InstanceType.fromProfiles(...).getTargetInstanceUrl()
+
+    note over Service1: RestClient로 원격 서버의 로컬 캐시 삭제 API 호출
+    Service1 -> RestClient1: POST getTargetInstanceUrl() + "/api/v1/cache/evict-local"
+    activate RestClient1
+
+    RestClient1 -> Controller2: POST /api/v1/cache/evict-local
+    activate Controller2
+
+    Controller2 -> Service2: clearOnlyLocalCache()
+    activate Service2
+
+    Service2 -> CacheManager2: getCacheNames()
+    activate CacheManager2
+    CacheManager2 --> Service2: ["promotions", "promotionItems", ...]
+    deactivate CacheManager2
+
+    loop for each cache name
+        Service2 -> CacheManager2: getCache(name)
+        activate CacheManager2
+        CacheManager2 --> Service2: cache
+        deactivate CacheManager2
+        Service2 -> cache: clear()
+    end
+
+    Service2 --> Controller2: void
+    deactivate Service2
+
+    Controller2 --> RestClient1: 200 OK
+    deactivate Controller2
+
+    RestClient1 --> Service1: 200 OK
+    deactivate RestClient1
+end
+
+Service1 --> Controller1: void
+deactivate Service1
+
+Controller1 --> Admin: 200 OK
+deactivate Controller1
+
+@enduml
